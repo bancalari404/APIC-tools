@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from phase_recon.io.mat_reader import ImagingData, load_mat
-from phase_recon.core.parameters import ReconParams
+from pyAPIC.io.mat_reader import ImagingData, load_mat
+from pyAPIC.core.parameters import ReconParams
 
 @dataclass
 class Case:
@@ -34,7 +34,7 @@ class Case:
         Execute the reconstruction algorithm. Populates self._result.
         """
         # Import here to avoid circular
-        from phase_recon.core.reconstructor import reconstruct
+        from pyAPIC.core.reconstructor import reconstruct
 
         self._result = reconstruct(self.data, self.params)
 
@@ -62,7 +62,7 @@ class Case:
         """
         Generate standard plots for this case (initial data, results).
         """
-        from phase_recon.visual.plotters import plot_initial, plot_results
+        from pyAPIC.visual.plotters import plot_initial, plot_results
 
         plot_initial(self.data)
         plot_results(self.result)
