@@ -1,0 +1,32 @@
+import pytest
+import numpy as np
+from pyAPIC.core.case import Case
+from pyAPIC.core.parameters import ReconParams
+from pyAPIC.io.mat_reader import ImagingData
+
+
+def make_imaging_data():
+    return ImagingData(
+        I_low=np.ones((2, 4, 4)),
+        freqXY_calib=np.zeros((2, 2)),
+        na_rp_cal=1.0,
+        dpix_c=1.0,
+        na_calib=np.zeros((2, 2)),
+        na_cal=1.0,
+        wavelength=1.0,
+    )
+
+
+def test_case_result_before_run():
+    case = Case(data=make_imaging_data(), params=ReconParams())
+    with pytest.raises(RuntimeError):
+        _ = case.result
+
+
+def test_case_run_and_result():
+    case = Case(data=make_imaging_data(), params=ReconParams())
+    case.run()
+    result = case.result
+    assert 'E_stack' in result
+    assert np.allclose(result['E_stack'], 1.0)
+
