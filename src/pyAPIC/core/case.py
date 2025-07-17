@@ -62,7 +62,15 @@ class Case:
         """
         Generate standard plots for this case (initial data, results).
         """
-        from pyAPIC.visual.plotters import plot_initial, plot_results
-
-        plot_initial(self.data)
+        from pyAPIC.visual.plotters import plot_results
         plot_results(self.result)
+
+    def plot_input(self, ncols: int = 5) -> None:
+        """
+        Plot the initial intensity stack as a grid of images.
+
+        Args:
+            ncols (int): Number of columns in the grid.
+        """
+        from pyAPIC.visual.plotters import plot_input
+        plot_input(self.data, ncols)

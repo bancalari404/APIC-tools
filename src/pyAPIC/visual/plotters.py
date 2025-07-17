@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pyAPIC.io.mat_reader import ImagingData
 
 
-def plot_initial(data: ImagingData, ncols: int = 5) -> None:
+def plot_input(data: ImagingData, ncols: int = 5) -> None:
     """
     Plot the initial intensity stack as a grid of images.
 

@@ -21,7 +21,7 @@ def make_data():
 def test_plot_initial(monkeypatch):
     data = make_data()
     monkeypatch.setattr(plt, 'show', lambda: None)
-    plotters.plot_initial(data, ncols=2)
+    plotters.plot_input(data, ncols=2)
 
 
 def test_plot_results(monkeypatch):
