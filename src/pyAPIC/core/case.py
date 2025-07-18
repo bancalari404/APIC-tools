@@ -74,3 +74,13 @@ class Case:
         """
         from pyAPIC.visual.plotters import plot_input
         plot_input(self.data, ncols)
+
+    def plot_E_stack(self, ncols: int = 5) -> None:
+        """
+        Plot the LED stack as a grid of images.
+
+        Args:
+            ncols (int): Number of columns in the grid.
+        """
+        from pyAPIC.visual.plotters import plot_E_stack
+        plot_E_stack(self.result)

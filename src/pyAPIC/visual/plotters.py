@@ -125,5 +125,5 @@ def plot_E_stack(result: dict) -> None:
     
     slider.on_changed(update)
     
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.show()
