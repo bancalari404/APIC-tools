@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
 from pyAPIC.io.mat_reader import ImagingData
 
 
@@ -37,15 +38,15 @@ def plot_results(result: dict) -> None:
     """
     Plot the reconstructed complex field: amplitude and phase.
 
-    Args:
-        result (dict): Result dict from reconstruct(); must contain 'E_stack'.
+    Parameters
+    ----------
+    result : dict
+        Result dict from :func:`reconstruct`. It should contain ``'E_stitched'``.
     """
-    E_stack = result.get('E_stack')
-    if E_stack is None:
-        raise ValueError("Result dict must contain 'E_stack'.")
+    E = result.get("E_stitched")
+    if E is None:
+        raise ValueError("Result dict must contain 'E_stitched'.")
 
-    # Combine stack by averaging
-    E = np.mean(E_stack, axis=0)
     amp = np.abs(E)
     phase = np.angle(E)
 
@@ -60,5 +61,69 @@ def plot_results(result: dict) -> None:
     ax2.axis('off')
     fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
 
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_E_stack(result: dict) -> None:
+    """
+    Plot the E_stack complex field with a slider to navigate through images.
+
+    Parameters
+    ----------
+    result : dict
+        Result dict from :func:`reconstruct`. It should contain ``'E_stack'``.
+    """
+    E_stack = result.get("E_stack")
+    if E_stack is None:
+        raise ValueError("Result dict must contain 'E_stack'.")
+    
+    N = E_stack.shape[0]
+    if N == 0:
+        raise ValueError("E_stack is empty.")
+    
+    # Initial image index
+    init_idx = 0
+    
+    # Create figure and subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    plt.subplots_adjust(bottom=0.25)
+    
+    # Initial plot
+    E_init = E_stack[init_idx]
+    amp_init = np.abs(E_init)
+    phase_init = np.angle(E_init)
+    
+    im1 = ax1.imshow(amp_init, cmap='gray')
+    ax1.set_title(f'Amplitude - Image {init_idx}')
+    ax1.axis('off')
+    cbar1 = fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
+    
+    im2 = ax2.imshow(phase_init, cmap='twilight', vmin=-np.pi, vmax=np.pi)
+    ax2.set_title(f'Phase - Image {init_idx}')
+    ax2.axis('off')
+    cbar2 = fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
+    
+    # Create slider
+    ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
+    slider = Slider(ax_slider, 'Image', 0, N-1, valinit=init_idx, valfmt='%d')
+    
+    def update(val):
+        idx = int(slider.val)
+        E = E_stack[idx]
+        amp = np.abs(E)
+        phase = np.angle(E)
+        
+        im1.set_array(amp)
+        im1.set_clim(vmin=amp.min(), vmax=amp.max())
+        ax1.set_title(f'Amplitude - Image {idx}')
+        
+        im2.set_array(phase)
+        ax2.set_title(f'Phase - Image {idx}')
+        
+        fig.canvas.draw_idle()
+    
+    slider.on_changed(update)
+    
     plt.tight_layout()
     plt.show()

@@ -25,6 +25,6 @@ def test_plot_initial(monkeypatch):
 
 
 def test_plot_results(monkeypatch):
-    res = {'E_stack': np.ones((2, 4, 4), dtype=complex)}
+    res = {'E_stitched': np.ones((4, 4), dtype=complex)}
     monkeypatch.setattr(plt, 'show', lambda: None)
     plotters.plot_results(res)

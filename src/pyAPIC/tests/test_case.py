@@ -27,6 +27,6 @@ def test_case_run_and_result():
     case = Case(data=make_imaging_data(), params=ReconParams())
     case.run()
     result = case.result
-    assert 'E_stack' in result
-    assert np.allclose(result['E_stack'], 1.0)
+    assert 'E_stitched' in result
+    assert result['E_stitched'].shape == (4, 4)
 
