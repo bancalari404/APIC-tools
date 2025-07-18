@@ -37,15 +37,19 @@ def plot_results(result: dict) -> None:
     """
     Plot the reconstructed complex field: amplitude and phase.
 
-    Args:
-        result (dict): Result dict from reconstruct(); must contain 'E_stack'.
+    Parameters
+    ----------
+    result : dict
+        Result dict from :func:`reconstruct`. It should contain either
+        ``'E_stitched'`` or ``'E_stack'``.
     """
-    E_stack = result.get('E_stack')
-    if E_stack is None:
-        raise ValueError("Result dict must contain 'E_stack'.")
+    E = result.get("E_stitched")
+    if E is None:
+        E_stack = result.get("E_stack")
+        if E_stack is None:
+            raise ValueError("Result dict must contain 'E_stitched' or 'E_stack'.")
+        E = np.mean(E_stack, axis=0)
 
-    # Combine stack by averaging
-    E = np.mean(E_stack, axis=0)
     amp = np.abs(E)
     phase = np.angle(E)
 

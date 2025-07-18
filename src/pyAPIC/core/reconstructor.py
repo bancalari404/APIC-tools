@@ -62,6 +62,74 @@ def pupil_mask_stack(shape: tuple, freqXY_stack: np.ndarray, NA_pix: float) -> n
     return mask
 
 
+def stitch(data: ImagingData, E_reconstructed: np.ndarray, CTF: np.ndarray | None = None, method: str = "nearest"):
+    """Combine the reconstructed field stack into a single complex field.
+
+    Parameters
+    ----------
+    data : ImagingData
+        Acquisition parameters used for pupil positioning.
+    E_reconstructed : np.ndarray
+        Complex field stack of shape (N, H, W).
+    CTF : np.ndarray | None, optional
+        Aberration transfer function. If provided it will be shifted to each
+        LED position and multiplied with the pupil functions.
+    method : str, optional
+        How to combine the Fourier patches. Options are ``"average"`` and
+        ``"nearest"``. ``"nearest"`` selects the patch whose illumination
+        center is closest to each Fourier pixel while ``"average"`` performs an
+        overlap average.  ``"nearest"`` is the default.
+
+    Returns
+    -------
+    tuple
+        ``(E_reconstructed, pupil_masks, effective_pupil, E_stitched)``
+    """
+
+    pupil_masks = pupil_mask_stack(E_reconstructed.shape, data.freqXY_calib, data.na_rp_cal)
+
+    if CTF is not None:
+        CTFs = np.stack([CTF] * E_reconstructed.shape[0], axis=0)
+        for i in range(CTFs.shape[0]):
+            center = np.array(CTFs.shape[1:]) // 2
+            shift = (np.round(data.freqXY_calib[:, i] - center)).astype(int)[::-1]
+            CTFs[i] = np.roll(CTF, shift, axis=(0, 1))
+            offset = np.angle(CTFs[i])[center[0], center[1]]
+            CTFs[i] *= np.exp(-1j * offset)
+        pupil_masks = pupil_masks.astype(np.complex128) * CTFs
+
+    F_E_reconstructed = FFT(E_reconstructed)
+    F_E_reconstructed *= pupil_masks
+
+    if method == "average":
+        F_E_stitched = np.mean(F_E_reconstructed, axis=0)
+        pupil_masks_sum = np.sum(np.abs(pupil_masks), axis=0)
+        effective_pupil = pupil_masks_sum > 0
+        pupil_masks_sum[pupil_masks_sum == 0] = 1
+        F_E_stitched /= pupil_masks_sum
+    elif method == "nearest":
+        num_images, H, W = F_E_reconstructed.shape
+        grid_y, grid_x = np.indices((H, W))
+        distance_maps = np.empty((num_images, H, W), dtype=float)
+        for i in range(num_images):
+            x_ctf = data.freqXY_calib[0, i]
+            y_ctf = data.freqXY_calib[1, i]
+            distance_maps[i] = np.sqrt((grid_x - x_ctf) ** 2 + (grid_y - y_ctf) ** 2)
+        best_idx = np.argmin(distance_maps, axis=0)
+        F_E_stitched = np.zeros((H, W), dtype=F_E_reconstructed.dtype)
+        for i in range(num_images):
+            mask = best_idx == i
+            F_E_stitched[mask] = F_E_reconstructed[i][mask]
+        effective_pupil = np.any(np.abs(pupil_masks) > 0, axis=0)
+        F_E_stitched *= effective_pupil
+    else:
+        raise ValueError("Invalid method. Choose 'average' or 'nearest'.")
+
+    E_stitched = IFFT(F_E_stitched).conj()
+
+    return E_reconstructed, pupil_masks, effective_pupil, E_stitched
+
+
 def reconstruct(data: ImagingData, params: ReconParams) -> dict:
     """
     Perform the full reconstruction pipeline:
@@ -85,15 +153,19 @@ def reconstruct(data: ImagingData, params: ReconParams) -> dict:
     result = {'E_stack': E_stack}
 
     # 4. Aberration
+    CTF_abe = None
     if params.reconstruct_aberration:
-        # Compute shifts relative to Fourier center
         H, W = data.I_low.shape[1:]
         center = np.array([H, W]) // 2
         shifts = (data.freqXY_calib.T - center).astype(int)
-        # Compute CTF aberration using your operator
         F_E = FFT(E_stack)
-        CTF_abe = get_ctf(F_E, shifts, CTF_radius=data.na_rp_cal,
-                           useWeights=False, useZernike=True).conj()
+        CTF_abe = get_ctf(
+            F_E, shifts, CTF_radius=data.na_rp_cal, useWeights=False, useZernike=True
+        ).conj()
         result['aberration'] = CTF_abe
+
+    # 5. Stitch the stack into a single field
+    _, _, _, E_stitched = stitch(data, E_stack, CTF=CTF_abe, method=params.stitch_method)
+    result['E_stitched'] = E_stitched
 
     return result

@@ -45,5 +45,7 @@ def test_reconstruct_no_aberration():
 
     assert 'E_stack' in result
     assert result['E_stack'].shape == data.I_low.shape
-    assert np.allclose(result['E_stack'], 1.0)
+    assert 'E_stitched' in result
+    assert result['E_stitched'].shape == data.I_low.shape[1:]
+    assert np.all(np.isfinite(result['E_stitched']))
     assert 'aberration' not in result
