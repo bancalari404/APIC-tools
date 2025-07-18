@@ -11,4 +11,4 @@ class ReconParams:
             "nearest").
     """
     reconstruct_aberration: bool = False
-    stitch_method: str = "nearest"
+    stitch_method: str = "average"
