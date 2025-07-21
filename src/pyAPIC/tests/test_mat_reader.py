@@ -21,11 +21,11 @@ def test_load_mat(tmp_path):
     data = load_mat(str(path))
 
     assert data.I_low.shape == (2, 4, 4)
-    assert data.freqXY_calib.shape == (2, 2)
+    assert data.illum_px.shape == (2, 2)
     assert data.na_rp_cal == 1.0
-    assert data.dpix_c == 1.0
-    assert data.na_calib.shape == (2, 2)
-    assert data.na_cal == 1.0
+    assert data.pixel_size == 1.0
+    assert data.illum_na.shape == (2, 2)
+    assert data.system_na == 1.0
     assert data.wavelength == 1.0
 
 
@@ -35,8 +35,8 @@ def test_load_mat_downsample(tmp_path):
     data = load_mat(str(path), downsample=2)
 
     assert data.I_low.shape == (1, 4, 4)
-    assert data.freqXY_calib.shape == (2, 1)
-    assert data.na_calib.shape == (2, 1)
+    assert data.illum_px.shape == (2, 1)
+    assert data.illum_na.shape == (2, 1)
 
 
 def test_load_mat_compute_freq(tmp_path):
@@ -45,4 +45,4 @@ def test_load_mat_compute_freq(tmp_path):
     data = load_mat(str(path))
 
     expected = np.full((2, 2), 2)
-    assert np.array_equal(data.freqXY_calib, expected)
+    assert np.array_equal(data.illum_px, expected)

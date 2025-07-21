@@ -111,14 +111,14 @@ def stitch(
     """
 
     pupil_masks = pupil_mask_stack(
-        E_reconstructed.shape, data.freqXY_calib, data.na_rp_cal
+        E_reconstructed.shape, data.illum_px, data.na_rp_cal
     )
 
     if CTF is not None:
         CTFs = np.stack([CTF] * E_reconstructed.shape[0], axis=0)
         for i in range(CTFs.shape[0]):
             center = np.array(CTFs.shape[1:]) // 2
-            shift = (np.round(data.freqXY_calib[:, i] - center)).astype(int)[::-1]
+            shift = (np.round(data.illum_px[:, i] - center)).astype(int)[::-1]
             CTFs[i] = np.roll(CTF, shift, axis=(0, 1))
             offset = np.angle(CTFs[i])[center[0], center[1]]
             CTFs[i] *= np.exp(-1j * offset)
@@ -138,8 +138,8 @@ def stitch(
         grid_y, grid_x = np.indices((H, W))
         distance_maps = np.empty((num_images, H, W), dtype=float)
         for i in range(num_images):
-            x_ctf = data.freqXY_calib[0, i]
-            y_ctf = data.freqXY_calib[1, i]
+            x_ctf = data.illum_px[0, i]
+            y_ctf = data.illum_px[1, i]
             distance_maps[i] = np.sqrt((grid_x - x_ctf) ** 2 + (grid_y - y_ctf) ** 2)
         best_idx = np.argmin(distance_maps, axis=0)
         F_E_stitched = np.zeros((H, W), dtype=F_E_reconstructed.dtype)
@@ -171,7 +171,7 @@ def reconstruct(data: ImagingData, params: ReconParams) -> dict:
     # 1. Real component of log-field
     Re = 0.5 * np.log(data.I_low)
     # 2. Imaginary via Hilbert transform
-    Im = directed_hilbert_transform_stack(Re, data.freqXY_calib)
+    Im = directed_hilbert_transform_stack(Re, data.illum_px)
     # 3. Combine and exponentiate
     logE = Re + 1j * Im
     E_stack = np.exp(logE)
@@ -183,7 +183,7 @@ def reconstruct(data: ImagingData, params: ReconParams) -> dict:
     if params.reconstruct_aberration:
         H, W = data.I_low.shape[1:]
         center = np.array([H, W]) // 2
-        shifts = (data.freqXY_calib.T - center).astype(int)
+        shifts = (data.illum_px.T - center).astype(int)
         F_E = fft2c(E_stack)
         CTF_abe = get_ctf(
             F_E, shifts, CTF_radius=data.na_rp_cal, useWeights=False, useZernike=True

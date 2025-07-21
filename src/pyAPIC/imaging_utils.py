@@ -7,12 +7,13 @@ def to_pixel_coords(
     angles: np.ndarray,
     *,
     na_rp_cal: float,
-    na_cal: float,
+    system_na: float | None = None,
     center: np.ndarray,
     wavelength: float | None = None,
     units: str = "na",
+    na_cal: float | None = None,
 ) -> np.ndarray:
-    """Convert illumination angles to the ``freqXY_calib`` pixel coordinates.
+    """Convert illumination angles to the ``illum_px`` pixel coordinates.
 
     Parameters
     ----------
@@ -20,8 +21,9 @@ def to_pixel_coords(
         Array of illumination angles of shape ``(2, N)``.
     na_rp_cal:
         Numerical aperture expressed in pixel units.
-    na_cal:
-        System numerical aperture (unitless).
+    system_na:
+        System numerical aperture (unitless). ``na_cal`` may be used as an
+        alias for backward compatibility.
     center:
         Image center ``(y, x)``.
     wavelength:
@@ -31,6 +33,11 @@ def to_pixel_coords(
         frequency units.
     """
     angles = np.asarray(angles)
+
+    if system_na is None:
+        system_na = na_cal
+    if system_na is None:
+        raise ValueError("system_na is required")
 
     if units not in {"na", "freq"}:
         raise ValueError("units must be 'na' or 'freq'")
@@ -42,6 +49,6 @@ def to_pixel_coords(
     else:
         freq_uv = angles
 
-    con = na_rp_cal / na_cal
+    con = na_rp_cal / system_na
     center = np.asarray(center).reshape(2, 1)
     return freq_uv * con + center
