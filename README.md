@@ -13,3 +13,19 @@ Recent versions adopt clearer naming for acquisition parameters:
 
 The old attribute names remain available as aliases for backward
 compatibility but new code should prefer the terms above.
+
+## Development setup
+
+Install runtime dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then install the package with its development extras:
+
+```bash
+pip install -e .[dev]
+```
+
+This provides tooling for testing and linting the project.

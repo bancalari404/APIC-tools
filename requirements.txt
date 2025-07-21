@@ -29,7 +29,7 @@ nh3==0.2.22
 numpy==2.2.6
 packaging==25.0
 pillow==11.3.0
--e git+https://github.com/bancalari404/pyAPIC.git@107d3cf62c342dead5d22e0e7ed97122615431ce#egg=pyAPIC
+pyAPIC==0.0.3
 pycparser==2.22
 Pygments==2.19.2
 pyparsing==3.2.3
