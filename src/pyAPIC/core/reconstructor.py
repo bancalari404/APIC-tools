@@ -5,25 +5,42 @@ from pyAPIC.io.mat_reader import ImagingData
 from pyAPIC.core.parameters import ReconParams
 from pyAPIC.core.solve_ctf_operators import get_ctf
 
+
 # Fourier helpers
-FFT = lambda x: fftshift(fft2(x), axes=(-2, -1))
-IFFT = lambda x: ifft2(ifftshift(x, axes=(-2, -1)))
+def fft2c(x: np.ndarray) -> np.ndarray:
+    """Compute a centered 2-D Fourier transform.
+
+    ``fft2`` is applied and the result is shifted so that the zero-frequency
+    component appears at the center of the last two axes.
+    """
+    return fftshift(fft2(x), axes=(-2, -1))
 
 
-def directed_hilbert_transform_stack(Re_stack: np.ndarray, freqXY_stack: np.ndarray) -> np.ndarray:
+def ifft2c(x: np.ndarray) -> np.ndarray:
+    """Inverse transform corresponding to :func:`fft2c`.
+
+    The input is shifted back with ``ifftshift`` before applying ``ifft2`` so
+    that arrays transformed with :func:`fft2c` are perfectly inverted.
+    """
+    return ifft2(ifftshift(x, axes=(-2, -1)))
+
+
+def directed_hilbert_transform_stack(
+    Re_stack: np.ndarray, freqXY_stack: np.ndarray
+) -> np.ndarray:
     """
     Perform the directed Hilbert transform on a stack of real-valued images.
     Returns the imaginary part stack.
     """
     # FFT of each frame
-    F_Re = FFT(Re_stack)
+    F_Re = fft2c(Re_stack)
     N, H, W = F_Re.shape
 
     # frequency grid centered
     center = np.array([H, W]) // 2
     u = np.arange(H) - center[0]
     v = np.arange(W) - center[1]
-    U, V = np.meshgrid(u, v, indexing='xy')
+    U, V = np.meshgrid(u, v, indexing="xy")
     U = np.broadcast_to(U, (N, H, W))
     V = np.broadcast_to(V, (N, H, W))
 
@@ -36,11 +53,13 @@ def directed_hilbert_transform_stack(Re_stack: np.ndarray, freqXY_stack: np.ndar
     hilbert_mask = -1j * np.sign(dot)
 
     F_hilbert = F_Re * hilbert_mask
-    Im_stack = IFFT(F_hilbert)
+    Im_stack = ifft2c(F_hilbert)
     return Im_stack
 
 
-def pupil_mask_stack(shape: tuple, freqXY_stack: np.ndarray, NA_pix: float) -> np.ndarray:
+def pupil_mask_stack(
+    shape: tuple, freqXY_stack: np.ndarray, NA_pix: float
+) -> np.ndarray:
     """
     Generate pupil masks for each LED frame.
     shape: (N, H, W)
@@ -49,20 +68,25 @@ def pupil_mask_stack(shape: tuple, freqXY_stack: np.ndarray, NA_pix: float) -> n
     N, H, W = shape
     u = np.arange(H)
     v = np.arange(W)
-    U, V = np.meshgrid(u, v, indexing='xy')
+    U, V = np.meshgrid(u, v, indexing="xy")
     U = np.broadcast_to(U, (N, H, W))
     V = np.broadcast_to(V, (N, H, W))
 
     kx = freqXY_stack[0].reshape(N, 1, 1)
     ky = freqXY_stack[1].reshape(N, 1, 1)
 
-    R = np.sqrt((U - kx)**2 + (V - ky)**2)
+    R = np.sqrt((U - kx) ** 2 + (V - ky) ** 2)
     mask = np.zeros((N, H, W), dtype=float)
     mask[R <= NA_pix] = 1.0
     return mask
 
 
-def stitch(data: ImagingData, E_reconstructed: np.ndarray, CTF: np.ndarray | None = None, method: str = "nearest"):
+def stitch(
+    data: ImagingData,
+    E_reconstructed: np.ndarray,
+    CTF: np.ndarray | None = None,
+    method: str = "nearest",
+):
     """Combine the reconstructed field stack into a single complex field.
 
     Parameters
@@ -86,7 +110,9 @@ def stitch(data: ImagingData, E_reconstructed: np.ndarray, CTF: np.ndarray | Non
         ``(E_reconstructed, pupil_masks, effective_pupil, E_stitched)``
     """
 
-    pupil_masks = pupil_mask_stack(E_reconstructed.shape, data.freqXY_calib, data.na_rp_cal)
+    pupil_masks = pupil_mask_stack(
+        E_reconstructed.shape, data.freqXY_calib, data.na_rp_cal
+    )
 
     if CTF is not None:
         CTFs = np.stack([CTF] * E_reconstructed.shape[0], axis=0)
@@ -98,7 +124,7 @@ def stitch(data: ImagingData, E_reconstructed: np.ndarray, CTF: np.ndarray | Non
             CTFs[i] *= np.exp(-1j * offset)
         pupil_masks = pupil_masks.astype(np.complex128) * CTFs
 
-    F_E_reconstructed = FFT(E_reconstructed)
+    F_E_reconstructed = fft2c(E_reconstructed)
     F_E_reconstructed *= pupil_masks
 
     if method == "average":
@@ -125,7 +151,7 @@ def stitch(data: ImagingData, E_reconstructed: np.ndarray, CTF: np.ndarray | Non
     else:
         raise ValueError("Invalid method. Choose 'average' or 'nearest'.")
 
-    E_stitched = IFFT(F_E_stitched).conj()
+    E_stitched = ifft2c(F_E_stitched).conj()
 
     return E_reconstructed, pupil_masks, effective_pupil, E_stitched
 
@@ -150,7 +176,7 @@ def reconstruct(data: ImagingData, params: ReconParams) -> dict:
     logE = Re + 1j * Im
     E_stack = np.exp(logE)
 
-    result = {'E_stack': E_stack}
+    result = {"E_stack": E_stack}
 
     # 4. Aberration
     CTF_abe = None
@@ -158,14 +184,16 @@ def reconstruct(data: ImagingData, params: ReconParams) -> dict:
         H, W = data.I_low.shape[1:]
         center = np.array([H, W]) // 2
         shifts = (data.freqXY_calib.T - center).astype(int)
-        F_E = FFT(E_stack)
+        F_E = fft2c(E_stack)
         CTF_abe = get_ctf(
             F_E, shifts, CTF_radius=data.na_rp_cal, useWeights=False, useZernike=True
         ).conj()
-        result['aberration'] = CTF_abe
+        result["aberration"] = CTF_abe
 
     # 5. Stitch the stack into a single field
-    _, _, _, E_stitched = stitch(data, E_stack, CTF=CTF_abe, method=params.stitch_method)
-    result['E_stitched'] = E_stitched
+    _, _, _, E_stitched = stitch(
+        data, E_stack, CTF=CTF_abe, method=params.stitch_method
+    )
+    result["E_stitched"] = E_stitched
 
     return result
