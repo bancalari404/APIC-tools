@@ -31,10 +31,6 @@ def make_imaging_data():
         I_low=np.ones((2, 4, 4)),
         freqXY_calib=np.zeros((2, 2)),
         na_rp_cal=1.0,
-        dpix_c=1.0,
-        na_calib=np.zeros((2, 2)),
-        na_cal=1.0,
-        wavelength=1.0,
     )
 
 
@@ -43,9 +39,9 @@ def test_reconstruct_no_aberration():
     params = ReconParams(reconstruct_aberration=False)
     result = reconstruct(data, params)
 
-    assert 'E_stack' in result
-    assert result['E_stack'].shape == data.I_low.shape
-    assert 'E_stitched' in result
-    assert result['E_stitched'].shape == data.I_low.shape[1:]
-    assert np.all(np.isfinite(result['E_stitched']))
-    assert 'aberration' not in result
+    assert "E_stack" in result
+    assert result["E_stack"].shape == data.I_low.shape
+    assert "E_stitched" in result
+    assert result["E_stitched"].shape == data.I_low.shape[1:]
+    assert np.all(np.isfinite(result["E_stitched"]))
+    assert "aberration" not in result
