@@ -56,7 +56,7 @@ def plot_results(result: dict) -> None:
     ax1.axis('off')
     fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
 
-    im2 = ax2.imshow(phase, cmap='twilight', vmin=-np.pi, vmax=np.pi)
+    im2 = ax2.imshow(phase, cmap='seismic', vmin=-np.pi, vmax=np.pi)
     ax2.set_title('Phase')
     ax2.axis('off')
     fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
@@ -99,7 +99,7 @@ def plot_E_stack(result: dict) -> None:
     ax1.axis('off')
     cbar1 = fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
     
-    im2 = ax2.imshow(phase_init, cmap='twilight', vmin=-np.pi, vmax=np.pi)
+    im2 = ax2.imshow(phase_init, cmap='seismic', vmin=-np.pi, vmax=np.pi)
     ax2.set_title(f'Phase - Image {init_idx}')
     ax2.axis('off')
     cbar2 = fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
