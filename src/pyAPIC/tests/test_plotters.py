@@ -10,7 +10,7 @@ from pyAPIC.io.mat_reader import ImagingData
 def make_data():
     return ImagingData(
         I_low=np.ones((2, 4, 4)),
-        freqXY_calib=np.zeros((2, 2)),
+        illum_px=np.zeros((2, 2)),
         na_rp_cal=1.0,
     )
 
