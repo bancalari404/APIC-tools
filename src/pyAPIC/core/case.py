@@ -60,7 +60,7 @@ class Case:
 
     def plot(self):
         """
-        Generate standard plots for this case (initial data, results).
+        Generate result plot for this case.
         """
         from pyAPIC.visual.plotters import plot_results
         plot_results(self.result)
