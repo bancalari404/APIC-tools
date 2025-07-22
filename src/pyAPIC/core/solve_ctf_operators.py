@@ -5,6 +5,9 @@ from scipy.sparse.linalg import lsqr
 from scipy.linalg import solve, lstsq
 from skimage.restoration import unwrap_phase
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 def check_full_column_rank(A):
     rank = np.linalg.matrix_rank(A)
@@ -128,7 +131,6 @@ def get_ctf(recFTframes, shifts, CTF_radius=None, CTF=None, useWeights=False, us
 
     # sort shifts and frames by angle
     phis = [np.arctan2(k[1], k[0]) for k in shifts]
-    # print(f"phis: {phis}")
     shifts = [k for _, k in sorted(zip(phis, shifts))]
     recFTframes = [k for _, k in sorted(zip(phis, recFTframes))]
 
@@ -147,7 +149,7 @@ def get_ctf(recFTframes, shifts, CTF_radius=None, CTF=None, useWeights=False, us
     idx_overlap_l = [np.nonzero(CTFs[i].flatten() * CTFs[(i+1) % len(CTFs)].flatten())[0] for i in range(len(CTFs))]
 
     # Unwrap the phase differences
-    print("Unwrapping phase differences")
+    logger.info("Unwrapping phase differences")
     phase_diffs = []
     weights = []
     for i in range(len(recFTframes)):
@@ -170,7 +172,7 @@ def get_ctf(recFTframes, shifts, CTF_radius=None, CTF=None, useWeights=False, us
     K = np.array(list(zip(U.flatten(), V.flatten())))
     idx_ctf = np.nonzero(CTF.flatten())[0]
 
-    print("Forming operators")
+    logger.info("Forming operators")
     start_time = time.time()
     Ds = []
     row_map = build_row_map(K)
@@ -189,7 +191,10 @@ def get_ctf(recFTframes, shifts, CTF_radius=None, CTF=None, useWeights=False, us
             D = A - O
         Ds.append(D)
 
-    print(f"Time to form DSs and D0s: {time.time() - start_time:.2f} seconds")
+    logger.info(
+        "Time to form DSs and D0s: %.2f seconds",
+        time.time() - start_time,
+    )
 
     Ds = vstack(Ds)
 
@@ -198,12 +203,11 @@ def get_ctf(recFTframes, shifts, CTF_radius=None, CTF=None, useWeights=False, us
 
 
     if useZernike:
-        print("Solving for Zernike coefficients")
+        logger.info("Solving for Zernike coefficients")
         # Solve for the Zernike coefficients
         Ds = Ds@Dz
 
         # check if Ds is full column rank
-        # print(f"Is Ds full column rank: {check_full_column_rank(Ds)}")
 
         # Solve for the Zernike coefficients
         zernike_solved = solve((Ds.T@Ds) + np.eye(Ds.shape[1]), Ds.T@phase_diffs)             # Regularized least squares scipy.linalg.solve (10 calls = 11.61)
@@ -215,8 +219,7 @@ def get_ctf(recFTframes, shifts, CTF_radius=None, CTF=None, useWeights=False, us
         # zernike_solved = np.linalg.lstsq(Ds, phase_diffs, rcond=None)[0]                        # least squares numpy.linalg.lstsq (10 calls = 11.75)
         # zernike_solved = lsqr(Ds, phase_diffs)[0]                                                # least squares scipy.sparse.linalg.lsqr (10 calls = 12.65)
         
-        print("Zernike coefficients solved")
-        # print(f"Zernike coefficients: {zernike_solved}")
+        logger.info("Zernike coefficients solved")
 
         n_pupil_px = np.sum(CTF)
         CTF_abe = (Dz@zernike_solved)
@@ -260,7 +263,6 @@ def unwrap_phase_differences(recFTframes, size_x, size_y, CTFs, i):
     N = np.histogram(wrappedPhase, bins=32, range=(-np.pi * 2, np.pi * 2))[0]
     N[:10] = 0
     N[-10:] = 0
-        # print(f"N: {N}")
     idxPk = np.argmax(N)
     x2use = np.arange(-np.pi * 2, np.pi * 2, np.pi / 8)
     offsetPk = np.mean(wrappedPhase[(wrappedPhase > x2use[idxPk-1]) & (wrappedPhase < x2use[idxPk + 1])])

@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.fftpack import fft2, ifft2, fftshift, ifftshift
+from scipy.fft import fft2, ifft2, fftshift, ifftshift
 
 from pyAPIC.io.mat_reader import ImagingData
 from pyAPIC.core.parameters import ReconParams
