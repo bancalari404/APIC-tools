@@ -26,6 +26,4 @@ Module contents
 ---------------
 
 .. automodule:: pyAPIC
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :noindex:
