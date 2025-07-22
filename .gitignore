@@ -125,6 +125,9 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Documentation build artifacts
+docs/_build/
+
 # Example data
 example/Setup_18_TUG_3.mat
 
