@@ -1,38 +1,16 @@
-pyAPIC.core package
-===================
+pyAPIC.core subpackage
+======================
 
-Submodules
-----------
-
-pyAPIC.core.case module
------------------------
-
-.. automodule:: pyAPIC.core.case
+.. automodule:: pyAPIC.core
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyAPIC.core.parameters module
------------------------------
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
-.. automodule:: pyAPIC.core.parameters
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyAPIC.core.reconstructor module
---------------------------------
-
-.. automodule:: pyAPIC.core.reconstructor
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyAPIC.core.solve\_ctf\_operators module
-----------------------------------------
-
-.. automodule:: pyAPIC.core.solve_ctf_operators
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   pyAPIC.core.case
+   pyAPIC.core.parameters
+   pyAPIC.core.reconstructor
+   pyAPIC.core.solve_ctf_operators

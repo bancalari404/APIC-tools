@@ -1,19 +1,7 @@
-pyAPIC.visual package
-=====================
+pyAPIC.visual subpackage
+========================
 
-Submodules
-----------
-
-pyAPIC.visual.plotters module
------------------------------
-
-.. automodule:: pyAPIC.visual.plotters
+.. automodule:: pyAPIC.visual
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pyAPIC.visual
-   :noindex:

@@ -3,9 +3,12 @@ Welcome to pyAPIC's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: pyAPIC Modules
 
-   modules
+   pyAPIC
+   pyAPIC.core
+   pyAPIC.io
+   pyAPIC.visual
 
 Indices and tables
 ==================
