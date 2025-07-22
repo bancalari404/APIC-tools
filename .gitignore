@@ -124,3 +124,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Example data
+example/Setup_18_TUG_3.mat
+

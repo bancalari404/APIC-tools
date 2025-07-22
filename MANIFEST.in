@@ -1,1 +1,1 @@
-exclude src/pyAPIC/tests/*
+exclude src/pyAPIC/tests/* example/Setup_18_TUG_3.mat
