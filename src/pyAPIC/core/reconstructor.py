@@ -111,7 +111,7 @@ def stitch(
     """
 
     pupil_masks = pupil_mask_stack(
-        E_reconstructed.shape, data.illum_px, data.na_rp_cal
+        E_reconstructed.shape, data.illum_px, data.system_na_px
     )
 
     if CTF is not None:
@@ -186,7 +186,7 @@ def reconstruct(data: ImagingData, params: ReconParams) -> dict:
         shifts = (data.illum_px.T - center).astype(int)
         F_E = fft2c(E_stack)
         CTF_abe = get_ctf(
-            F_E, shifts, CTF_radius=data.na_rp_cal, useWeights=False, useZernike=True
+            F_E, shifts, CTF_radius=data.system_na_px, useWeights=False, useZernike=True
         ).conj()
         result["aberration"] = CTF_abe
 

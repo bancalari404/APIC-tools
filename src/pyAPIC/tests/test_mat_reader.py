@@ -22,7 +22,7 @@ def test_load_mat(tmp_path):
 
     assert data.I_low.shape == (2, 4, 4)
     assert data.illum_px.shape == (2, 2)
-    assert data.na_rp_cal == 1.0
+    assert data.system_na_px == 1.0
     assert data.pixel_size == 1.0
     assert data.illum_na.shape == (2, 2)
     assert data.system_na == 1.0
