@@ -1,4 +1,6 @@
 # pyAPIC
+[![PyPI](https://img.shields.io/pypi/v/pyAPIC.svg)](https://pypi.org/project/pyAPIC/)
+[![Documentation](https://readthedocs.org/projects/pyapic/badge/?version=latest)](https://pyapic.readthedocs.io/)
 
 ## Terminology
 

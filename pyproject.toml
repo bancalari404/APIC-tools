@@ -57,7 +57,7 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/bancalari404/pyAPIC"
 Repository = "https://github.com/bancalari404/pyAPIC"
-Documentation = "https://github.com/bancalari404/pyAPIC#readme"
+Documentation = "https://pyapic.readthedocs.io/"
 "Bug Tracker" = "https://github.com/bancalari404/pyAPIC/issues"
 
 [tool.setuptools.packages.find]
