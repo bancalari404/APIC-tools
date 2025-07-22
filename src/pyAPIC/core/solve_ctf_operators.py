@@ -83,13 +83,20 @@ def form_diff_and_offset_operator(K, idx_overlap, ki, kl, row_map):
 
 def form_Zernike_operator(zernikeModes, size):
     """
-    Calculates the Zernike modes at given x and y coordinates.
-    Input:
-        zernikeModes: Zernike modes 
-        x: x coordinates vector
-        y: y coordinates vector
-    Output:
-        Zernike matrix with len(zernikeModes) columns and len(x) rows
+    Calculate Zernike modes for a square grid.
+
+    Parameters
+    ----------
+    zernikeModes : sequence of int
+        Mode indices.
+    size : int
+        Grid dimension (pixels).
+
+    Returns
+    -------
+    ndarray
+        Matrix of shape ``(size**2, len(zernikeModes))`` containing
+        the Zernike modes.
     """
     temp = np.linspace(-1, 1, size)  # Example: temp is a linear space across the grid
     
