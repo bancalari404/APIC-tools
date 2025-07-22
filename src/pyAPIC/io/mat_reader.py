@@ -13,6 +13,7 @@ class ImagingData:
     illum_px: np.ndarray  # Illumination angles in pixel coords, shape (2, N)
     system_na_px: float  # System numerical aperture in pixel units
     pixel_size: Optional[float] = None  # Physical pixel size (e.g. um/px)
+    magnification: Optional[float] = None  # Objective magnification
     illum_na: Optional[np.ndarray] = (
         None  # Illumination angles in NA units, shape (2, N)
     )
@@ -65,6 +66,14 @@ class ImagingData:
     def na_rp_cal(self, value: float) -> None:
         self.system_na_px = value
 
+    @property
+    def mag(self) -> Optional[float]:
+        return self.magnification
+
+    @mag.setter
+    def mag(self, value: Optional[float]) -> None:
+        self.magnification = value
+
 
 from ..imaging_utils import to_pixel_coords
 
@@ -83,11 +92,23 @@ def load_mat(path: str, downsample: int = 1) -> ImagingData:
     with h5py.File(path, "r") as f:
         I_low = f["I_low"][:]  # shape (N, H, W)
         freqXY_calib = f["freqXY_calib"][:] if "freqXY_calib" in f else None
-        system_na_px = float(f["na_rp_cal"][()])
+        system_na_px = float(f["na_rp_cal"][()]) if "na_rp_cal" in f else None
         dpix_c = float(f["dpix_c"][()]) if "dpix_c" in f else None
         na_calib = f["na_calib"][:] if "na_calib" in f else None
         system_na = float(f["na_cal"][()]) if "na_cal" in f else None
         wavelength = float(f["lambda"][()]) if "lambda" in f else None
+        magnification = float(f["mag"][()]) if "mag" in f else None
+
+        if system_na_px is None and all(
+            val is not None for val in (dpix_c, magnification, system_na, wavelength)
+        ):
+            im_size = min(I_low.shape[1:])
+            system_na_px = im_size * dpix_c / magnification * system_na / wavelength
+
+        if system_na_px is None:
+            raise KeyError(
+                "na_rp_cal not found and could not be computed from provided data"
+            )
 
     # Subsample if requested
     if downsample > 1:
@@ -118,6 +139,7 @@ def load_mat(path: str, downsample: int = 1) -> ImagingData:
         illum_px=freqXY_calib,
         system_na_px=system_na_px,
         pixel_size=dpix_c,
+        magnification=magnification,
         illum_na=na_calib,
         system_na=system_na,
         wavelength=wavelength,
