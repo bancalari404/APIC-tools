@@ -62,6 +62,7 @@ Documentation = "https://github.com/bancalari404/pyAPIC#readme"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["pyAPIC.tests"]
 
 [tool.setuptools.package-dir]
 "" = "src"
