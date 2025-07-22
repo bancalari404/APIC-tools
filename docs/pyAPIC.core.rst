@@ -36,10 +36,3 @@ pyAPIC.core.solve\_ctf\_operators module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: pyAPIC.core
-   :members:
-   :undoc-members:
-   :show-inheritance:
