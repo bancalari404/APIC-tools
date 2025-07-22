@@ -9,7 +9,7 @@ except PackageNotFoundError:  # pragma: no cover - local source checkout
 
 from .core.case import Case
 from .core.parameters import ReconParams
-from .imaging_utils import to_pixel_coords
+from .io.imaging_utils import to_pixel_coords
 from .io.mat_reader import ImagingData, load_mat
 
 __all__ = [
