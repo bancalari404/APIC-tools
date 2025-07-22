@@ -9,7 +9,6 @@ Subpackages
 
    pyAPIC.core
    pyAPIC.io
-   pyAPIC.tests
    pyAPIC.visual
 
 Submodules
