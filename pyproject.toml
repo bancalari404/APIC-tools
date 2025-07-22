@@ -8,18 +8,17 @@ version = "0.1.0"
 description = "A Python package for APIC functionality"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "bancalari404", email = "j.bancalari@student.tugraz.at"},
 ]
 maintainers = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "bancalari404", email = "j.bancalari@student.tugraz.at"},
 ]
 keywords = ["python", "apic"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
