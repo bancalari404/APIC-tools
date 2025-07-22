@@ -30,3 +30,21 @@ pip install -e .[dev]
 ```
 
 This provides tooling for testing and linting the project.
+
+## Public API
+
+The following convenience imports are available from the top-level package:
+
+```python
+from pyAPIC import (
+    Case,
+    ImagingData,
+    ReconParams,
+    load_mat,
+    to_pixel_coords,
+)
+
+```
+
+They mirror the underlying modules located in ``pyAPIC.core`` and
+``pyAPIC.io`` and may be used in examples and user code.
