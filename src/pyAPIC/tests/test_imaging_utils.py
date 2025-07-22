@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyAPIC.imaging_utils import to_pixel_coords
+from pyAPIC.io.imaging_utils import to_pixel_coords
 
 
 def test_to_pixel_coords_na_units():

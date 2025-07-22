@@ -75,7 +75,7 @@ class ImagingData:
         self.magnification = value
 
 
-from ..imaging_utils import to_pixel_coords
+from .imaging_utils import to_pixel_coords
 
 
 def load_mat(path: str, downsample: int = 1) -> ImagingData:
