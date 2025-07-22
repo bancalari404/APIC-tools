@@ -9,6 +9,7 @@ Recent versions adopt clearer naming for acquisition parameters:
 | `illum_px` | `freqXY_calib`| LED positions in pixel coordinates     |
 | `illum_na` | `na_calib`    | LED positions expressed in NA units    |
 | `system_na`| `na_cal`      | System numerical aperture              |
+| `system_na_px` | `na_rp_cal` | System NA in pixel units               |
 | `pixel_size` | `dpix_c`    | Camera pixel size                      |
 
 The old attribute names remain available as aliases for backward

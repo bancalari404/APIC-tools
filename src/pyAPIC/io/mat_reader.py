@@ -11,7 +11,7 @@ class ImagingData:
 
     I_low: np.ndarray  # Intensity images stack, shape (N, H, W)
     illum_px: np.ndarray  # Illumination angles in pixel coords, shape (2, N)
-    na_rp_cal: float  # Numerical aperture in pixel units
+    system_na_px: float  # System numerical aperture in pixel units
     pixel_size: Optional[float] = None  # Physical pixel size (e.g. um/px)
     illum_na: Optional[np.ndarray] = (
         None  # Illumination angles in NA units, shape (2, N)
@@ -57,6 +57,14 @@ class ImagingData:
     def na_cal(self, value: Optional[float]) -> None:
         self.system_na = value
 
+    @property
+    def na_rp_cal(self) -> float:
+        return self.system_na_px
+
+    @na_rp_cal.setter
+    def na_rp_cal(self, value: float) -> None:
+        self.system_na_px = value
+
 
 from ..imaging_utils import to_pixel_coords
 
@@ -75,7 +83,7 @@ def load_mat(path: str, downsample: int = 1) -> ImagingData:
     with h5py.File(path, "r") as f:
         I_low = f["I_low"][:]  # shape (N, H, W)
         freqXY_calib = f["freqXY_calib"][:] if "freqXY_calib" in f else None
-        na_rp_cal = float(f["na_rp_cal"][()])
+        system_na_px = float(f["na_rp_cal"][()])
         dpix_c = float(f["dpix_c"][()]) if "dpix_c" in f else None
         na_calib = f["na_calib"][:] if "na_calib" in f else None
         system_na = float(f["na_cal"][()]) if "na_cal" in f else None
@@ -93,7 +101,7 @@ def load_mat(path: str, downsample: int = 1) -> ImagingData:
         center = np.array(I_low.shape[1:]) // 2
         freqXY_calib = to_pixel_coords(
             na_calib,
-            na_rp_cal=na_rp_cal,
+            system_na_px=system_na_px,
             system_na=system_na,
             wavelength=wavelength,
             center=center,
@@ -108,7 +116,7 @@ def load_mat(path: str, downsample: int = 1) -> ImagingData:
     return ImagingData(
         I_low=I_low,
         illum_px=freqXY_calib,
-        na_rp_cal=na_rp_cal,
+        system_na_px=system_na_px,
         pixel_size=dpix_c,
         illum_na=na_calib,
         system_na=system_na,

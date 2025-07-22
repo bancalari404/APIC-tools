@@ -6,7 +6,7 @@ import numpy as np
 def to_pixel_coords(
     angles: np.ndarray,
     *,
-    na_rp_cal: float,
+    system_na_px: float,
     system_na: float | None = None,
     center: np.ndarray,
     wavelength: float | None = None,
@@ -19,8 +19,8 @@ def to_pixel_coords(
     ----------
     angles:
         Array of illumination angles of shape ``(2, N)``.
-    na_rp_cal:
-        Numerical aperture expressed in pixel units.
+    system_na_px:
+        System numerical aperture expressed in pixel units.
     system_na:
         System numerical aperture (unitless). ``na_cal`` may be used as an
         alias for backward compatibility.
@@ -49,6 +49,6 @@ def to_pixel_coords(
     else:
         freq_uv = angles
 
-    con = na_rp_cal / system_na
+    con = system_na_px / system_na
     center = np.asarray(center).reshape(2, 1)
     return freq_uv * con + center
